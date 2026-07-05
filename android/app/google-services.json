@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "500405287580",
+    "project_id": "my-easytravel",
+    "storage_bucket": "my-easytravel.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:500405287580:android:7813504ad6270f0d60cb59",
+        "android_client_info": {
+          "package_name": "com.example.easy_travel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrfbk4-wuaKRYfNf23lGxlIiYjeG4Hd_w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
