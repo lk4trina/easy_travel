@@ -10,19 +10,16 @@ class ViagemViewModel extends ChangeNotifier {
 
   List<Viagem> get viagens => _viagens;
 
-  // Construtor único unificado
   ViagemViewModel() {
     _carregarDados();
     inicializarAtracoesNoFirebase();
   }
 
-  // Carrega as viagens do banco de dados SQLite local
   Future<void> _carregarDados() async {
     _viagens = await DatabaseHelper.instance.lerTodasViagens();
     notifyListeners();
   }
 
-  // Cria uma nova viagem inicializando as listas vazias e salva no SQLite
   Future<void> adicionarViagem({
     required String destino,
     required String? pontoPartida,
@@ -39,6 +36,9 @@ class ViagemViewModel extends ChangeNotifier {
       quantidadeViajantes: quantidadeViajantes,
       despesas: [],
       atracoes: [],
+      acomodacoes: [],
+      transportes: [],
+      checkList: [],
     );
 
     _viagens.add(novaViagem);
@@ -46,7 +46,6 @@ class ViagemViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Atualiza uma viagem existente no SQLite (usado para salvar o roteiro de atrações)
   Future<void> atualizarViagem(Viagem viagem) async {
     final index = _viagens.indexWhere((v) => v.id == viagem.id);
     if (index != -1) {
@@ -56,7 +55,12 @@ class ViagemViewModel extends ChangeNotifier {
     }
   }
 
-  // Adiciona uma despesa a uma viagem específica e atualiza o banco local
+  Future<void> excluirViagem(String id) async {
+    _viagens.removeWhere((v) => v.id == id);
+    await DatabaseHelper.instance.excluirViagem(id);
+    notifyListeners();
+  }
+
   Future<void> adicionarDespesa(
       String viagemId, {
         required String categoria,
@@ -80,7 +84,33 @@ class ViagemViewModel extends ChangeNotifier {
     }
   }
 
-  // Cálculos financeiros para a tela de Gastos
+  Future<void> adicionarAcomodacao(String viagemId, Acomodacao acomodacao) async {
+    final index = _viagens.indexWhere((v) => v.id == viagemId);
+    if (index != -1) {
+      _viagens[index].acomodacoes = [..._viagens[index].acomodacoes, acomodacao];
+      await DatabaseHelper.instance.atualizarViagem(_viagens[index]);
+      notifyListeners();
+    }
+  }
+
+  Future<void> adicionarTransporte(String viagemId, Transporte transporte) async {
+    final index = _viagens.indexWhere((v) => v.id == viagemId);
+    if (index != -1) {
+      _viagens[index].transportes = [..._viagens[index].transportes, transporte];
+      await DatabaseHelper.instance.atualizarViagem(_viagens[index]);
+      notifyListeners();
+    }
+  }
+
+  Future<void> adicionarCheckItem(String viagemId, CheckItem item) async {
+    final index = _viagens.indexWhere((v) => v.id == viagemId);
+    if (index != -1) {
+      _viagens[index].checkList = [..._viagens[index].checkList, item];
+      await DatabaseHelper.instance.atualizarViagem(_viagens[index]);
+      notifyListeners();
+    }
+  }
+
   double calcularTotalIndividual(String widgetViagemId) {
     final viagem = _viagens.firstWhere((v) => v.id == widgetViagemId, orElse: () => _viagens.first);
     return viagem.despesas
@@ -95,7 +125,6 @@ class ViagemViewModel extends ChangeNotifier {
         .fold(0.0, (sum, item) => sum + item.valor);
   }
 
-  // FUNÇÃO DE AUTO-SETUP: Alimenta o catálogo na nuvem (Firebase) se estiver vazio
   Future<void> inicializarAtracoesNoFirebase() async {
     final firestore = FirebaseFirestore.instance;
     final colecao = firestore.collection('cidades');
@@ -224,62 +253,62 @@ class ViagemViewModel extends ChangeNotifier {
           {
             'nome': 'Passarela da Barra',
             'fotos': [
-              'https://images.unsplash.com/photo-1511316695145-4992006ffddb?w=400&q=80',
-              'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=400&q=80'
+              'https://www.viagensecaminhos.com/wp-content/uploads/2017/03/passarela-da-barra-balneario-camboriu-1.jpg',
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2cYQ26tYA5cp8_rUNR3UaA4sTEo8V3SgJaHdXWcb8em1dhqBuLxeHamA&s=10'
             ]
           },
           {
             'nome': 'Praia do Estaleiro',
             'fotos': [
-              'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=400&q=80',
-              'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&q=80'
+              'https://www.safetyyatchs.com.br/admin/image/blog/48/48-1thumb.jpg',
+              'https://imgmd.net/images/v1/guia/2917634/praia-do-estaleiro.jpg'
             ]
           },
           {
             'nome': 'Praia do Pinho',
             'fotos': [
-              'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400&q=80',
-              'https://images.unsplash.com/photo-1501426026826-31c667bdf23d?w=400&q=80'
+              'https://img2.migalhas.com.br/_MEDPROC_/https__img.migalhas.com.br__SL__gf_base__SL__empresas__SL__MIGA__SL__imagens__SL__2025__SL__12__SL__30__SL__cropped_bxgnamx4.i4u.png._PROC_CP65.png',
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdyM4Gfh-pYaL-BgBqooZ-dwWI6BAVnwhZve9veTfnqjvejFAPUgk3Ak1g&s=10'
             ]
           },
           {
             'nome': 'Oceanic Aquarium',
             'fotos': [
-              'https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=400&q=80',
-              'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80'
+              'https://passaportedigital.com/wp-content/uploads/2021/02/oceanic-aquarium-balneario-camboriu.jpg',
+              'https://oatlantico.com.br/wp-content/uploads/2020/03/0aquario3.jpg'
             ]
           }
         ]
       },
       'Blumenau, SC - Brasil': {
-        'fotoCidade': 'https://images.unsplash.com/photo-1599833585141-863a017e2993?w=800&q=80',
+        'fotoCidade': 'https://www.hotel10.com.br/wp-content/uploads/2025/09/Credito_-Daniel-Zimmermann.webp',
         'atracoes': [
           {
             'nome': 'Vila Germânica',
             'fotos': [
-              'https://images.unsplash.com/photo-1586724230021-a02154315256?w=400&q=80',
-              'https://images.unsplash.com/photo-1605371924599-2c03b5dbae30?w=400&q=80'
+              'https://www.dicasdeviagem.com/wp-content/uploads/2019/06/vila-germanica-blumenau-1024x685.jpg',
+              'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1a/8b/1b/8b/emporio-vila-germanica.jpg?w=1200&h=-1&s=1'
             ]
           },
           {
             'nome': 'Museu da Cerveja',
             'fotos': [
-              'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?w=400&q=80',
-              'https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?w=400&q=80'
+              'https://www.litoraldesantacatarina.com/wp-content/uploads/2010/10/foto-museu-da-cerveja.jpg',
+              'https://casadedoda.com/wp-content/uploads/2018/04/museu-da-cerveja-blumenau-6.jpg'
             ]
           },
           {
             'nome': 'Rua XV de Novembro',
             'fotos': [
-              'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=400&q=80',
-              'https://images.unsplash.com/photo-1490642914619-7955a3fd483c?w=400&q=80'
+              'https://www.turismoblumenau.com.br/wp-content/uploads/2021/10/Rua-XV-COMERCIO-1.jpg',
+              'https://casadoturista.com.br/wp-content/uploads/2016/05/MG_5961.jpg'
             ]
           },
           {
             'nome': 'Parque Ramiro Ruediger',
             'fotos': [
-              'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&q=80',
-              'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80'
+              'https://blog.zelt.com.br/wp-content/uploads/2019/08/5-razoes-morar-proximo-parque-ramiro-ruediger.jpg',
+              'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/01/ed/ec/20200222-162831-largejpg.jpg?w=1200&h=1200&s=1'
             ]
           },
           {
@@ -327,7 +356,7 @@ class ViagemViewModel extends ChangeNotifier {
         ]
       },
       'Joinville, SC - Brasil': {
-        'fotoCidade': 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?w=800&q=80',
+        'fotoCidade': 'https://cdn.imoview.com.br/principe/Site/imagens/f29fgq0g.png',
         'atracoes': [
           {
             'nome': 'Escola do Teatro Bolshoi',
@@ -402,76 +431,76 @@ class ViagemViewModel extends ChangeNotifier {
         ]
       },
       'Manaus, AM - Brasil': {
-        'fotoCidade': 'https://images.unsplash.com/photo-1601379018444-ed884ee7ba88?w=800&q=80',
+        'fotoCidade': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB0-4zRMmWeYb4IbVQwzrpIXSYuDqj3vEKFYDBskKOcGFZtkkznYvk9QA&s=10',
         'atracoes': [
           {
             'nome': 'Teatro Amazonas',
             'fotos': [
-              'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400&q=80',
-              'https://images.unsplash.com/photo-1549918830-116704c4668b?w=400&q=80'
+              'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0c/20/49/13/vista-externa-do-teatro.jpg?w=700&h=400&s=1',
+              'https://turistaprofissional.com/wp-content/uploads/2012/12/Teatro-Amazonas.jpg'
             ]
           },
           {
             'nome': 'Encontro das Águas',
             'fotos': [
-              'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&q=80',
-              'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80'
+              'https://hweb-images.br-se1.magaluobjects.com/5873d325c19a4207cc40b87c/35464b3be0044f5a8a689a425b5247a6.jpg',
+              'https://i0.wp.com/cabocloshousecolodge.com/wp-content/uploads/2022/08/encontro_das_aguas-AMAZONIA-REAL.jpg?fit=955%2C562&ssl=1'
             ]
           },
           {
             'nome': 'Mercado Adolpho Lisboa',
             'fotos': [
-              'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80',
-              'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400&q=80'
+              'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0a/26/7e/4b/mercado-municipal-adolfo.jpg?w=1200&h=1200&s=1',
+              'https://portalamazonia.com/wp-content/uploads/2022/07/b2ap3_large_mercadao.jpg'
             ]
           },
           {
             'nome': 'Praia da Ponta Negra',
             'fotos': [
-              'https://images.unsplash.com/photo-1501426026826-31c667bdf23d?w=400&q=80',
-              'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&q=80'
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRW8BZe2_R0dlgAaWQej-egmDpCoXtHRy7ATtYQ7VxNcWRM_69Rya0JRbo&s=10',
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXXBM4bt8FIY7aUMSZcjjfre-MAeMDuirhTnuIYDmMuFHK0Sl04elHyi1N&s=10'
             ]
           },
           {
             'nome': 'MUSA - Museu da Amazônia',
             'fotos': [
-              'https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80',
-              'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=400&q=80'
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRWcc3hwRqgESasai1xnC7DgABAqN6ejYe9yxtf1WSquOdWJQrjiDxsUId&s=10',
+              'https://portalamazonia.com/wp-content/uploads/2023/01/torre-fto-divulgao-musa.JPG'
             ]
           },
           {
             'nome': 'Arquipélago de Anavilhanas',
             'fotos': [
-              'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&q=80',
-              'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80'
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHczJvdZlr_gJv9RlKWL9WNZDmUkmzYc_2ukbJnmd-ihnpc5G7M5fyWi4&s=10',
+              'https://123ecos.com.br/wp-content/uploads/2024/11/Parque-Nacional-de-Anavilhanas-1.jpeg'
             ]
           },
           {
             'nome': 'Palácio Rio Negro',
             'fotos': [
-              'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400&q=80',
-              'https://images.unsplash.com/photo-1595206133361-b1fe343e5e23?w=400&q=80'
+              'https://upload.wikimedia.org/wikipedia/commons/3/31/Pal%C3%A1cio_Rio_Negro%2C_Manaus_1.jpg',
+              'https://hweb-images.br-se1.magaluobjects.com/5873d325c19a4207cc40b87c/2ac530df4a30421d9b88a793d18b7699.jpg'
             ]
           },
           {
             'nome': 'Sumaúma Park',
             'fotos': [
-              'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80',
-              'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80'
+              'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/17/c3/6e/1f/20190602-083805-largejpg.jpg?w=900&h=-1&s=1',
+              'https://media-cdn.tripadvisor.com/media/photo-s/0b/0e/05/39/entrada-do-parque-sumauma.jpg'
             ]
           },
           {
             'nome': 'Centro de Instrução de Guerra na Selva (CIGS)',
             'fotos': [
-              'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400&q=80',
-              'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&q=80'
+              'https://s2-g1.glbimg.com/oWofr1HnKJDTI6wdzDmHRZSFVcM=/0x0:950x600/984x0/smart/filters:strip_icc()/s.glbimg.com/jo/g1/f/original/2013/05/25/fachada_3_do_cigs.jpg',
+              'https://www.amazonasemais.com.br/wp-content/uploads/2014/12/cigs10.jpg'
             ]
           },
           {
             'nome': 'Flutuantes do Tarumã',
             'fotos': [
-              'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=400&q=80',
-              'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&q=80'
+              'https://www.amazonasemais.com.br/wp-content/uploads/2020/06/lotus-flutuante-5.jpg',
+              'https://cdn.bncamazonas.com.br/wp-content/uploads/2025/10/Flutuantes-Manaus.jpg'
             ]
           }
         ]

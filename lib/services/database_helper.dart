@@ -1,6 +1,5 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'dart:convert';
 import '../models/viagem.dart';
 
 class DatabaseHelper {
@@ -18,7 +17,6 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
@@ -36,18 +34,17 @@ CREATE TABLE viagens (
   dataFim $textType,
   quantidadeViajantes $integerType,
   despesas TEXT,
-  atracoes TEXT -- Armazena a lista de atrações locais do usuário
+  atracoes TEXT,
+  acomodacoes TEXT,
+  transportes TEXT,
+  checkList TEXT
 )
 ''');
   }
 
   Future<void> inserirViagem(Viagem viagem) async {
     final db = await instance.database;
-    await db.insert(
-      'viagens',
-      viagem.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('viagens', viagem.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Viagem>> lerTodasViagens() async {
@@ -58,11 +55,11 @@ CREATE TABLE viagens (
 
   Future<void> atualizarViagem(Viagem viagem) async {
     final db = await instance.database;
-    await db.update(
-      'viagens',
-      viagem.toJson(),
-      where: 'id = ?',
-      whereArgs: [viagem.id],
-    );
+    await db.update('viagens', viagem.toJson(), where: 'id = ?', whereArgs: [viagem.id]);
+  }
+
+  Future<void> excluirViagem(String id) async {
+    final db = await instance.database;
+    await db.delete('viagens', where: 'id = ?', whereArgs: [id]);
   }
 }

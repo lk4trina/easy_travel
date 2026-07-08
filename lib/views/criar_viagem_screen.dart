@@ -86,9 +86,13 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEEA243),
-        title: const Text('Nova Viagem', style: TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('Nova Viagem', style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFFEEA243)),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -101,6 +105,7 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
                 'assets/images/ilustracao_nova_viagem.png',
                 height: 180,
                 fit: BoxFit.contain,
+                errorBuilder: (c, e, s) => const Icon(Icons.map, size: 100, color: Color(0xFFEEA243)),
               ),
               const SizedBox(height: 24),
 
@@ -112,24 +117,12 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
 
               Autocomplete<String>(
                 optionsBuilder: (TextEditingValue textEditingValue) {
-                  if (textEditingValue.text.isEmpty) {
-                    return const Iterable<String>.empty();
-                  }
-                  return _locaisSalvos.where((String option) {
-                    return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                  });
+                  if (textEditingValue.text.isEmpty) return const Iterable<String>.empty();
+                  return _locaisSalvos.where((String option) => option.toLowerCase().contains(textEditingValue.text.toLowerCase()));
                 },
-                onSelected: (String selection) {
-                  _destinoController.text = selection;
-                },
+                onSelected: (String selection) => _destinoController.text = selection,
                 fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
-                  if (_destinoController.text.isNotEmpty && textController.text.isEmpty) {
-                    textController.text = _destinoController.text;
-                  }
-                  textController.addListener(() {
-                    _destinoController.text = textController.text;
-                  });
-
+                  textController.addListener(() => _destinoController.text = textController.text);
                   return TextFormField(
                     controller: textController,
                     focusNode: focusNode,
@@ -137,8 +130,6 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
                       hintText: 'Cidade, país, região',
                       prefixIcon: const Icon(Icons.location_on, color: Color(0xFFEEA243)),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      filled: true,
-                      fillColor: Colors.white,
                     ),
                     validator: (value) => value!.isEmpty ? 'Informe o destino' : null,
                   );
@@ -152,38 +143,13 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
               ),
               const SizedBox(height: 8),
 
-              Autocomplete<String>(
-                optionsBuilder: (TextEditingValue textEditingValue) {
-                  if (textEditingValue.text.isEmpty) {
-                    return const Iterable<String>.empty();
-                  }
-                  return _locaisSalvos.where((String option) {
-                    return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                  });
-                },
-                onSelected: (String selection) {
-                  _partidaController.text = selection;
-                },
-                fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
-                  if (_partidaController.text.isNotEmpty && textController.text.isEmpty) {
-                    textController.text = _partidaController.text;
-                  }
-                  textController.addListener(() {
-                    _partidaController.text = textController.text;
-                  });
-
-                  return TextFormField(
-                    controller: textController,
-                    focusNode: focusNode,
-                    decoration: InputDecoration(
-                      hintText: 'Endereço, aeroporto ou cidade',
-                      prefixIcon: const Icon(Icons.location_on_outlined, color: Color(0xFFEEA243)),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  );
-                },
+              TextFormField(
+                controller: _partidaController,
+                decoration: InputDecoration(
+                  hintText: 'Endereço',
+                  prefixIcon: const Icon(Icons.location_on_outlined, color: Color(0xFFEEA243)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -207,15 +173,12 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
                           _dataInicio == null
                               ? 'Selecione'
                               : '${DateFormat('dd/MM/yy').format(_dataInicio!)} - ${DateFormat('dd/MM/yy').format(_dataFim!)}',
-                          style: TextStyle(
-                            color: _dataInicio == null ? Colors.grey.shade600 : Colors.black,
-                            fontSize: 14,
-                          ),
+                          style: const TextStyle(fontSize: 12),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     flex: 2,
                     child: TextFormField(
@@ -225,7 +188,6 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
                         prefixIcon: const Icon(Icons.person, color: Color(0xFFEEA243)),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Qtd' : null,
                     ),
                   ),
                 ],
@@ -236,9 +198,7 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFEEA243),
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
                 onPressed: _salvarViagem,
                 child: const Text(
