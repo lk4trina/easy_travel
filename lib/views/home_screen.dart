@@ -32,15 +32,18 @@ class HomeScreen extends StatelessWidget {
 
           return Stack(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                child: PageView.builder(
-                  itemCount: viewModel.viagens.length,
-                  controller: PageController(viewportFraction: 0.85),
-                  itemBuilder: (context, index) {
-                    final viagem = viewModel.viagens[index];
-                    return _buildViagemCard(context, viagem);
-                  },
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.65, // Aumentado para acomodar o texto abaixo
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: PageView.builder(
+                    itemCount: viewModel.viagens.length,
+                    controller: PageController(viewportFraction: 0.8),
+                    itemBuilder: (context, index) {
+                      final viagem = viewModel.viagens[index];
+                      return _buildViagemCard(context, viagem);
+                    },
+                  ),
                 ),
               ),
               Positioned(
@@ -110,6 +113,7 @@ class HomeScreen extends StatelessWidget {
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
+              color: Colors.white,
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
@@ -119,102 +123,83 @@ class HomeScreen extends StatelessWidget {
                 )
               ],
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  imageUrl != null
-                      ? Image.network(imageUrl, fit: BoxFit.cover)
-                      : Container(
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.image, size: 100, color: Colors.white),
-                  ),
-
-                  Positioned(
-                    top: 20,
-                    right: 20,
-                    child: Row(
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                    child: Stack(
+                      fit: StackFit.expand,
                       children: [
-                        const CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.white,
-                          child: Icon(Icons.person, size: 20, color: Colors.grey),
+                        imageUrl != null
+                            ? Image.network(imageUrl, fit: BoxFit.cover)
+                            : Container(
+                          color: Colors.grey.shade300,
+                          child: const Icon(Icons.image, size: 100, color: Colors.white),
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFEEA243),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.download, color: Colors.white, size: 20),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Positioned(
-                    bottom: 40,
-                    left: 20,
-                    right: 20,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEEA243).withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            viagem.destino.split(',')[0],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        Positioned(
+                          top: 20,
+                          right: 20,
+                          child: Row(
                             children: [
-                              const Icon(Icons.calendar_today, color: Colors.white, size: 12),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${DateFormat('dd/MM/yyyy').format(viagem.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagem.dataFim)}',
-                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                              const CircleAvatar(
+                                radius: 18,
+                                backgroundColor: Colors.white,
+                                child: Icon(Icons.person, size: 20, color: Colors.grey),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFEEA243),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.download, color: Colors.white, size: 20),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  Positioned(
-                    bottom: 15,
-                    left: 0,
-                    right: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(color: Colors.white.withOpacity(0.5), shape: BoxShape.circle),
                         ),
                       ],
                     ),
-                  )
-                ],
-              ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEA243),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          viagem.destino.split(',')[0],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.calendar_today, color: Colors.white, size: 12),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${DateFormat('dd/MM/yyyy').format(viagem.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagem.dataFim)}',
+                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         );

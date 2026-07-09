@@ -25,6 +25,9 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
     'Blumenau, SC - Brasil',
     'Joinville, SC - Brasil',
     'Manaus, AM - Brasil',
+    'São Paulo, São Paulo - Brasil',
+    'Milão, Lombardia - Itália',
+    'Miami, Flórida - Estados Unidos'
   ];
 
   Future<void> _selecionarDatas(BuildContext context) async {

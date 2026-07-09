@@ -46,6 +46,33 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
     }
   }
 
+  void _mostrarMenuConfiguracoes(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Color(0xFFEE4343)),
+                title: const Text('Excluir Itinerário', style: TextStyle(color: Color(0xFFEE4343), fontWeight: FontWeight.bold)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmarExclusao(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _confirmarExclusao(BuildContext context) {
     showDialog(
       context: context,
@@ -83,10 +110,11 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
           return CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 200.0,
+                expandedHeight: 180.0,
                 floating: false,
                 pinned: true,
                 backgroundColor: const Color(0xFFEEA243),
+                elevation: 0,
                 flexibleSpace: FlexibleSpaceBar(
                   background: _urlFotoCidade.isNotEmpty
                       ? Image.network(_urlFotoCidade, fit: BoxFit.cover)
@@ -115,7 +143,7 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                     backgroundColor: Colors.white,
                     child: IconButton(
                       icon: const Icon(Icons.settings, color: Color(0xFFEEA243)),
-                      onPressed: () => _confirmarExclusao(context),
+                      onPressed: () => _mostrarMenuConfiguracoes(context),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -127,8 +155,7 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                   alignment: Alignment.topCenter,
                   children: [
                     Container(
-                      margin: const EdgeInsets.only(top: 0),
-                      padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 20),
+                      padding: const EdgeInsets.only(top: 80, left: 20, right: 20, bottom: 20),
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
@@ -196,10 +223,12 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                                 MaterialPageRoute(builder: (context) => GastosScreen(viagemId: viagemAtual.id)),
                               );
                             },
-                            items: [
-                              'Minhas Despesas: R\$ ${viewModel.calcularTotalIndividual(viagemAtual.id).toStringAsFixed(2)}',
-                              'Total Grupo: R\$ ${viewModel.calcularTotalGrupo(viagemAtual.id).toStringAsFixed(2)}',
-                            ],
+                            items: viagemAtual.despesas.isEmpty 
+                              ? null 
+                              : [
+                                  'Minhas Despesas: R\$ ${viewModel.calcularTotalIndividual(viagemAtual.id).toStringAsFixed(2)}',
+                                  'Total Grupo: R\$ ${viewModel.calcularTotalGrupo(viagemAtual.id).toStringAsFixed(2)}',
+                                ],
                           ),
                           _buildInfoSection(
                             'Check-list',
@@ -213,10 +242,10 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                       ),
                     ),
                     Positioned(
-                      top: -40,
+                      top: -60,
                       child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                        width: MediaQuery.of(context).size.width * 0.85,
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                         decoration: BoxDecoration(
                           color: const Color(0xFFEEA243),
                           borderRadius: BorderRadius.circular(15),
@@ -229,6 +258,7 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                           ],
                         ),
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               viagemAtual.destino,
@@ -239,9 +269,17 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              '${DateFormat('dd/MM/yyyy').format(viagemAtual.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagemAtual.dataFim)}',
-                              style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.calendar_today, color: Colors.white, size: 14),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${DateFormat('dd/MM/yyyy').format(viagemAtual.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagemAtual.dataFim)}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -255,22 +293,22 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
         },
       ),
       bottomNavigationBar: Container(
-        height: 60,
+        height: 70,
         decoration: const BoxDecoration(
           color: Color(0xFFEEA243),
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
+            topLeft: Radius.circular(25),
+            topRight: Radius.circular(25),
           ),
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Icon(Icons.search, color: Colors.white),
-            Icon(Icons.work, color: Colors.white),
-            Icon(Icons.explore, color: Colors.white),
-            Icon(Icons.favorite_border, color: Colors.white),
-            Icon(Icons.person_outline, color: Colors.white),
+            Icon(Icons.search, color: Colors.white, size: 28),
+            Icon(Icons.work, color: Colors.white, size: 28),
+            Icon(Icons.explore, color: Colors.white, size: 28),
+            Icon(Icons.favorite_border, color: Colors.white, size: 28),
+            Icon(Icons.person_outline, color: Colors.white, size: 28),
           ],
         ),
       ),
@@ -449,8 +487,8 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: items.length,
             itemBuilder: (context, index) => ListTile(
-              title: Text(items[index], style: const TextStyle(fontSize: 14)),
-              trailing: title == 'Despesas' ? const Icon(Icons.chevron_right, size: 16) : null,
+              title: Text(items[index], style: const TextStyle(color: Color(0xFFEEA243), fontSize: 14)),
+              trailing: title == 'Despesas' ? const Icon(Icons.chevron_right, color: Color(0xFFEEA243), size: 16) : null,
               dense: true,
               onTap: title == 'Despesas' ? onAdd : null,
             ),

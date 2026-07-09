@@ -6,7 +6,6 @@ import 'criar_despesa_screen.dart';
 
 class GastosScreen extends StatefulWidget {
   final String viagemId;
-
   const GastosScreen({super.key, required this.viagemId});
 
   @override
@@ -30,7 +29,7 @@ class _GastosScreenState extends State<GastosScreen> with SingleTickerProviderSt
       backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
         backgroundColor: const Color(0xFFEEA243),
-        title: const Text('Gastos', style: TextStyle(color: Colors.white)),
+        title: const Text('Gastos', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
       ),
@@ -45,19 +44,13 @@ class _GastosScreenState extends State<GastosScreen> with SingleTickerProviderSt
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24.0),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
+                padding: const EdgeInsets.symmetric(vertical: 24.0),
+                decoration: const BoxDecoration(color: Colors.white),
                 child: Column(
                   children: [
                     Text(
                       currencyFormat.format(total),
-                      style: const TextStyle(
-                        color: Color(0xFFEEA243),
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(color: Color(0xFFEEA243), fontSize: 36, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     TabBar(
@@ -92,9 +85,7 @@ class _GastosScreenState extends State<GastosScreen> with SingleTickerProviderSt
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => CriarDespesaScreen(viagemId: widget.viagemId),
-            ),
+            MaterialPageRoute(builder: (context) => CriarDespesaScreen(viagemId: widget.viagemId)),
           );
         },
         child: const Icon(Icons.add, color: Colors.white),
@@ -104,54 +95,64 @@ class _GastosScreenState extends State<GastosScreen> with SingleTickerProviderSt
 
   Widget _buildExpensesList(List despesas, NumberFormat currencyFormat) {
     if (despesas.isEmpty) {
-      return const Center(
-        child: Text('Nenhuma despesa registrada.', style: TextStyle(color: Colors.grey, fontSize: 16)),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/despesas.png', height: 120, errorBuilder: (c,e,s) => const Icon(Icons.monetization_on, size: 80, color: Color(0xFFEEA243))),
+            const SizedBox(height: 16),
+            const Text('Nenhuma despesa registrada.', style: TextStyle(color: Colors.grey, fontSize: 16)),
+          ],
+        ),
       );
     }
 
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-          child: Row(
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          color: Colors.grey.shade50,
+          child: const Row(
             children: [
-              Expanded(flex: 3, child: Text('Categoria', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))),
-              Expanded(flex: 2, child: Text('Valor', textAlign: TextAlign.right, style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))),
-              Expanded(flex: 2, child: Text('Data', textAlign: TextAlign.right, style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold))),
+              SizedBox(width: 32),
+              Expanded(flex: 4, child: Text('Categoria', style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold))),
+              Expanded(flex: 3, child: Text('Valor', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold))),
+              Expanded(flex: 3, child: Text('Data', textAlign: TextAlign.right, style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold))),
             ],
           ),
         ),
-        const Divider(height: 1),
         Expanded(
-          child: ListView.builder(
+          child: ListView.separated(
             itemCount: despesas.length,
+            separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF5F5F5)),
             itemBuilder: (context, index) {
               final despesa = despesas[index];
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                 child: Row(
                   children: [
-                    Icon(_getCategoryIcon(despesa.categoria), color: const Color(0xFFEEA243)),
+                    Icon(_getCategoryIcon(despesa.categoria), color: const Color(0xFFEEA243), size: 18),
                     const SizedBox(width: 12),
                     Expanded(
+                      flex: 4,
+                      child: Text(despesa.categoria, style: const TextStyle(color: Color(0xFFEEA243))),
+                    ),
+                    Expanded(
                       flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(despesa.categoria, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text(DateFormat('dd/MM/yyyy').format(despesa.data), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                        ],
+                      child: Text(
+                        currencyFormat.format(despesa.valor),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Color(0xFFEEA243)),
                       ),
                     ),
                     Expanded(
-                      flex: 2,
+                      flex: 3,
                       child: Text(
-                        currencyFormat.format(despesa.valor),
+                        DateFormat('dd/MM/yyyy').format(despesa.data),
                         textAlign: TextAlign.right,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Color(0xFFEEA243)),
                       ),
                     ),
-                    const Expanded(flex: 2, child: SizedBox()),
                   ],
                 ),
               );
@@ -164,10 +165,13 @@ class _GastosScreenState extends State<GastosScreen> with SingleTickerProviderSt
 
   IconData _getCategoryIcon(String categoria) {
     switch (categoria.toLowerCase()) {
-      case 'transporte': return Icons.directions_car;
-      case 'alimentação': return Icons.restaurant;
-      case 'hospedagem': return Icons.hotel;
+      case 'transporte': return Icons.flight_takeoff;
+      case 'acomodação': return Icons.hotel;
+      case 'restaurante': return Icons.restaurant;
+      case 'geral': return Icons.local_offer;
+      case 'entretenimento': return Icons.theater_comedy;
       case 'ingressos': return Icons.confirmation_number;
+      case 'compras': return Icons.shopping_bag;
       default: return Icons.attach_money;
     }
   }

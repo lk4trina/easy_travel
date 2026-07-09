@@ -513,10 +513,9 @@ class ViagemViewModel extends ChangeNotifier {
         for (var entrada in dadosIniciais.entries) {
           await colecao.doc(entrada.key).set(entrada.value);
         }
-        print("🔥 Catálogo de atrações com fotos enviado para o Firebase!");
       }
     } catch (e) {
-      print("Erro ao inicializar Firebase com fotos: $e");
+      print("Erro ao inicializar Firebase: $e");
     }
   }
 }

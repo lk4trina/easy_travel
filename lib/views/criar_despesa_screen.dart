@@ -7,7 +7,6 @@ import '../viewmodels/viagem_viewmodel.dart';
 
 class CriarDespesaScreen extends StatefulWidget {
   final String viagemId;
-
   const CriarDespesaScreen({super.key, required this.viagemId});
 
   @override
@@ -24,8 +23,10 @@ class _CriarDespesaScreenState extends State<CriarDespesaScreen> {
 
   final List<String> _categorias = [
     'Transporte',
-    'Alimentação',
-    'Hospedagem',
+    'Acomodação',
+    'Restaurante',
+    'Geral',
+    'Entretenimento',
     'Ingressos',
     'Compras',
     'Outros',
@@ -34,7 +35,6 @@ class _CriarDespesaScreenState extends State<CriarDespesaScreen> {
   Future<void> _tirarFoto() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
-
     if (pickedFile != null) {
       setState(() {
         _imagemRecibo = File(pickedFile.path);
@@ -51,9 +51,7 @@ class _CriarDespesaScreenState extends State<CriarDespesaScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFFEEA243),
-            ),
+            colorScheme: const ColorScheme.light(primary: Color(0xFFEEA243)),
           ),
           child: child!,
         );
@@ -85,7 +83,7 @@ class _CriarDespesaScreenState extends State<CriarDespesaScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFFEEA243),
-        title: const Text('Criar Despesa', style: TextStyle(color: Colors.white)),
+        title: const Text('Criar Despesa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
@@ -95,20 +93,13 @@ class _CriarDespesaScreenState extends State<CriarDespesaScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Selecione a categoria',
-                style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold),
-              ),
+              const Text('Selecione a categoria', style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Autocomplete<String>(
                 optionsBuilder: (TextEditingValue textEditingValue) {
-                  return _categorias.where((String option) {
-                    return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                  });
+                  return _categorias.where((String option) => option.toLowerCase().contains(textEditingValue.text.toLowerCase()));
                 },
-                onSelected: (String selection) {
-                  _categoriaController.text = selection;
-                },
+                onSelected: (String selection) => _categoriaController.text = selection,
                 fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
                   return TextFormField(
                     controller: controller,
@@ -124,10 +115,7 @@ class _CriarDespesaScreenState extends State<CriarDespesaScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Digite o valor',
-                style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold),
-              ),
+              const Text('Digite o valor', style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -164,10 +152,7 @@ class _CriarDespesaScreenState extends State<CriarDespesaScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Recibo (Câmera)',
-                style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold),
-              ),
+              const Text('Recibo (Câmera)', style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: _tirarFoto,
@@ -180,23 +165,20 @@ class _CriarDespesaScreenState extends State<CriarDespesaScreen> {
                   ),
                   child: _imagemRecibo == null
                       ? const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.camera_alt, size: 50, color: Color(0xFFEEA243)),
-                      Text('Toque para tirar foto do recibo', style: TextStyle(color: Colors.grey)),
-                    ],
-                  )
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.camera_alt, size: 50, color: Color(0xFFEEA243)),
+                            Text('Toque para tirar foto do recibo', style: TextStyle(color: Colors.grey)),
+                          ],
+                        )
                       : ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.file(_imagemRecibo!, fit: BoxFit.cover),
-                  ),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(_imagemRecibo!, fit: BoxFit.cover),
+                        ),
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Selecione a data',
-                style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold),
-              ),
+              const Text('Selecione a data', style: TextStyle(color: Color(0xFFEEA243), fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               InkWell(
                 onTap: () => _selecionarData(context),
