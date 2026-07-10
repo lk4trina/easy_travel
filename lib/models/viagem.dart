@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'cidade_destino.dart';
 
 class Despesa {
   final String id;
@@ -99,6 +100,7 @@ class Viagem {
   List<Acomodacao> acomodacoes;
   List<Transporte> transportes;
   List<CheckItem> checkList;
+  final CidadeDestino? cidadeDestino;
 
   Viagem({
     required this.id,
@@ -109,6 +111,7 @@ class Viagem {
     required this.quantidadeViajantes,
     required this.despesas,
     required this.atracoes,
+    this.cidadeDestino,
     this.acomodacoes = const [],
     this.transportes = const [],
     this.checkList = const [],
@@ -127,6 +130,7 @@ class Viagem {
       'acomodacoes': jsonEncode(acomodacoes.map((e) => e.toJson()).toList()),
       'transportes': jsonEncode(transportes.map((e) => e.toJson()).toList()),
       'checkList': jsonEncode(checkList.map((e) => e.toJson()).toList()),
+      'cidadeDestino': cidadeDestino != null ? jsonEncode(cidadeDestino!.toJson()) : null,
     };
   }
 
@@ -153,6 +157,9 @@ class Viagem {
       checkList: json['checkList'] != null
           ? (jsonDecode(json['checkList']) as List).map((e) => CheckItem.fromJson(e)).toList()
           : [],
+      cidadeDestino: json['cidadeDestino'] != null
+          ? CidadeDestino.fromJson(jsonDecode(json['cidadeDestino']))
+          : null,    
     );
   }
 }

@@ -95,6 +95,7 @@ class _CriarViagemScreenState extends State<CriarViagemScreen> {
         dataInicio: _dataInicio!,
         dataFim: _dataFim!,
         quantidadeViajantes: int.parse(_viajantesController.text),
+        cidadeDestino: _cidadeSelecionada,
       );
 
       if (mounted) {

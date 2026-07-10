@@ -27,4 +27,30 @@ class CidadeDestino {
       fotoUrl: fotoUrl ?? this.fotoUrl,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'nome': nome,
+      'pais': pais,
+      'estado': estado,
+      'latitude': latitude,
+      'longitude': longitude,
+      'fotoUrl': fotoUrl,
+    };
+  }
+
+  factory CidadeDestino.fromJson(Map<String, dynamic> json) {
+    return CidadeDestino(
+      nome: json['nome'] ?? '',
+      pais: json['pais'] ?? '',
+      estado: json['estado'] ?? '',
+      latitude: json['latitude'] != null
+          ? (json['latitude'] as num).toDouble()
+          : null,
+      longitude: json['longitude'] != null
+          ? (json['longitude'] as num).toDouble()
+          : null,
+      fotoUrl: json['fotoUrl'],
+    );
+  }
 }
