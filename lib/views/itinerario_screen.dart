@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/viagem.dart';
 import '../viewmodels/viagem_viewmodel.dart';
 import 'gastos_screen.dart';
+import 'mapa_full_screen.dart';
 
 class ItinerarioScreen extends StatefulWidget {
   final Viagem viagem;
@@ -130,11 +131,31 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
             clipBehavior: Clip.none,
             slivers: [
               SliverAppBar(
-                expandedHeight: 200.0,
+                expandedHeight: 220.0,
                 floating: false,
                 pinned: true,
                 backgroundColor: const Color(0xFFEEA243),
                 elevation: 0,
+                leading: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                      icon: const Icon(Icons.chevron_left, color: Color(0xFFEEA243)),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                ),
+                actions: [
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                      icon: const Icon(Icons.settings, color: Color(0xFFEEA243)),
+                      onPressed: () => _mostrarMenuConfiguracoes(context),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
                     clipBehavior: Clip.none,
@@ -143,14 +164,45 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                       _urlFotoCidade.isNotEmpty
                           ? Image.network(_urlFotoCidade, fit: BoxFit.cover)
                           : Container(color: const Color(0xFFEEA243)),
-
+                      
+                      // Perfil Centralizado
                       Positioned(
-                        bottom: 0,
+                        top: 50,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: Stack(
+                            children: [
+                              const CircleAvatar(
+                                radius: 30,
+                                backgroundColor: Colors.white,
+                                backgroundImage: NetworkImage('https://public-cdn-s3-us-west-2.oss-us-east-1.aliyuncs.com/talkie-user-img/93903448822076/200045860827213.jpeg?x-oss-process=image/resize,w_1024/format,webp'),
+                              ),
+                              Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.add_circle, size: 20, color: Color(0xFFEEA243)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Componente de local e data
+                      Positioned(
+                        bottom: 3,
                         left: 0,
                         right: 0,
                         child: Center(
                           child: Container(
-                            width: MediaQuery.of(context).size.width * 0.85,
+                            width: 220,
                             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                             decoration: BoxDecoration(
                               color: const Color(0xFFEEA243),
@@ -163,11 +215,11 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  viagemAtual.destino,
+                                  viagemAtual.destino.split(',')[0],
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -175,11 +227,11 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.calendar_today, color: Colors.white, size: 14),
+                                    const Icon(Icons.calendar_today, color: Colors.white, size: 16),
                                     const SizedBox(width: 8),
                                     Text(
                                       '${DateFormat('dd/MM/yyyy').format(viagemAtual.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagemAtual.dataFim)}',
-                                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                                      style: const TextStyle(color: Colors.white, fontSize: 12),
                                     ),
                                   ],
                                 ),
@@ -191,81 +243,78 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                     ],
                   ),
                 ),
-                leading: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white.withOpacity(0.9),
-                    child: IconButton(
-                      icon: const Icon(Icons.chevron_left, color: Color(0xFFEEA243)),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                ),
-                actions: [
-                  CircleAvatar(
-                    backgroundColor: Colors.white.withOpacity(0.9),
-                    child: IconButton(
-                      icon: const Icon(Icons.add, color: Color(0xFFEEA243)),
-                      onPressed: () {},
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  CircleAvatar(
-                    backgroundColor: Colors.white.withOpacity(0.9),
-                    child: IconButton(
-                      icon: const Icon(Icons.settings, color: Color(0xFFEEA243)),
-                      onPressed: () => _mostrarMenuConfiguracoes(context),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                ],
               ),
               SliverToBoxAdapter(
                 child: Container(
                   padding: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildTopIcon(Icons.hotel, 'Acomodação'),
-                          _buildTopIcon(Icons.flight, 'Transporte'),
-                          _buildTopIcon(Icons.attach_money, 'Despesas', onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => GastosScreen(viagemId: viagemAtual.id),
-                              ),
-                            );
-                          }),
-                        ],
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildTagButton(context, Icons.hotel, 'Acomodação', onTap: () => _mostrarDialogoAcomodacao(context, viagemAtual.id)),
+                            const SizedBox(width: 10),
+                            _buildTagButton(context, Icons.flight, 'Transporte', onTap: () => _mostrarDialogoTransporte(context, viagemAtual.id)),
+                            const SizedBox(width: 10),
+                            _buildTagButton(context, Icons.attach_money, 'Despesas', onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GastosScreen(viagemId: viagemAtual.id),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 30),
                       _buildSectionHeader('Itinerário'),
                       const SizedBox(height: 15),
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8)],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: SizedBox(
-                            height: 180,
-                            child: GoogleMap(
-                              initialCameraPosition: const CameraPosition(
-                                target: LatLng(-27.595, -48.548),
-                                zoom: 12,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MapaFullScreen(
+                                destino: viagemAtual.destino,
+                                latitude: viagemAtual.cidadeDestino?.latitude ?? -27.595,
+                                longitude: viagemAtual.cidadeDestino?.longitude ?? -48.548,
                               ),
-                              myLocationButtonEnabled: false,
-                              zoomControlsEnabled: false,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8)],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: AbsorbPointer(
+                              child: SizedBox(
+                                height: 180,
+                                child: GoogleMap(
+                                  initialCameraPosition: CameraPosition(
+                                    target: LatLng(
+                                      viagemAtual.cidadeDestino?.latitude ?? -27.595,
+                                      viagemAtual.cidadeDestino?.longitude ?? -48.548,
+                                    ),
+                                    zoom: 12,
+                                  ),
+                                  myLocationButtonEnabled: false,
+                                  zoomControlsEnabled: false,
+                                  markers: {
+                                    Marker(
+                                      markerId: const MarkerId('destino'),
+                                      position: LatLng(
+                                        viagemAtual.cidadeDestino?.latitude ?? -27.595,
+                                        viagemAtual.cidadeDestino?.longitude ?? -48.548,
+                                      ),
+                                    ),
+                                  },
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -326,12 +375,10 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,
-          decoration: const BoxDecoration(
-            color: Color(0xFFEEA243),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(25),
-              topRight: Radius.circular(25),
-            ),
+          margin: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEEA243),
+            borderRadius: BorderRadius.circular(25),
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -348,25 +395,30 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
     );
   }
 
-  Widget _buildTopIcon(IconData icon, String label, {VoidCallback? onTap}) {
+  Widget _buildTagButton(BuildContext context, IconData icon, String label, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFEEA243).withOpacity(0.8),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
+          color: const Color(0xFFEEA243),
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            )
           ],
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: Colors.white, size: 18),
-            const SizedBox(width: 6),
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
             Text(
               label,
-              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+              style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
             ),
           ],
         ),

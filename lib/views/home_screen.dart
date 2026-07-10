@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../viewmodels/viagem_viewmodel.dart';
 import '../models/viagem.dart';
+import '../widgets/custom_bottom_nav.dart';
 import 'itinerario_screen.dart';
 import 'criar_viagem_screen.dart';
 import 'conta_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentPage = 0;
+  final PageController _pageController = PageController(viewportFraction: 0.85);
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,315 +31,251 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
         backgroundColor: const Color(0xFFEEA243),
-        title: const Text(
-          'EasyTravel',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
+        toolbarHeight: 60,
+        title: const Padding(
+          padding: EdgeInsets.only(left: 10),
+          child: Text(
+            'EasyTravel',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 26,
+              fontFamily: 'Pacifico',
+            ),
+          ),
         ),
         centerTitle: false,
         elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(25),
+          ),
+        ),
       ),
-      body: Consumer<ViagemViewModel>(
-        builder: (context, viewModel, child) {
-          if (viewModel.viagens.isEmpty) {
-            return _buildEmptyState(context);
-          }
+      body: SafeArea(
+        child: Consumer<ViagemViewModel>(
+          builder: (context, viewModel, child) {
+            if (viewModel.viagens.isEmpty) {
+              return _buildEmptyState(context);
+            }
 
-          return SingleChildScrollView(
-            child: Column(
+            return Stack(
               children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.65,
-                  child: PageView.builder(
-                    clipBehavior: Clip.none,
-                    itemCount: viewModel.viagens.length,
-                    controller: PageController(viewportFraction: 0.85),
-                    itemBuilder: (context, index) {
-                      final viagem = viewModel.viagens[index];
-                      return _buildViagemCard(context, viagem);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 50),
-
-                Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CriarViagemScreen())),
-                      child: Container(
-                        width: 65,
-                        height: 65,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFEEA243),
-                          shape: BoxShape.circle,
-                          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))],
+                Column(
+                  children: [
+                    const SizedBox(height: 30),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.60,
+                      child: PageView.builder(
+                        clipBehavior: Clip.none,
+                        itemCount: viewModel.viagens.length,
+                        controller: _pageController,
+                        onPageChanged: (int page) {
+                          setState(() {
+                            _currentPage = page;
+                          });
+                        },
+                        itemBuilder: (context, index) {
+                          final viagem = viewModel.viagens[index];
+                          return _buildViagemCard(context, viagem);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        viewModel.viagens.length,
+                        (index) => Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _currentPage == index
+                                ? const Color(0xFFEEA243)
+                                : Colors.grey.shade300,
                         ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 40),
                       ),
                     ),
                   ),
+                ],
+              ),
+              Positioned(
+                bottom: 5,
+                right: 30,
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CriarViagemScreen()),
+                  ),
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEEA243),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 50),
+                  ),
                 ),
-                const SizedBox(height: 20),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
+    ),
+    bottomNavigationBar: const CustomBottomNav(selectedIndex: 1),
+  );
+}
 
-      bottomNavigationBar: SafeArea(
-        child: Container(    height: 70,
-            decoration: const BoxDecoration(
-              color: Color(0xFFEEA243),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(25),
-                topRight: Radius.circular(25),
-              ),
-            ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const _BottomNavItem(icon: Icons.search, label: 'Pesquisar'),
-            const _BottomNavItem(icon: Icons.work, label: 'Itinerário', isSelected: true),
-            const _BottomNavItem(icon: Icons.explore, label: 'Descobrir'),
-            const _BottomNavItem(icon: Icons.favorite_border, label: 'Favoritos'),
-            _BottomNavItem(
-              icon: Icons.person_outline,
-              label: 'Perfil',
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ContaScreen()));
-              },
-            ),
-          ],
-        ),
-      ),
-      ),
-    );
-  }
+  Widget _buildViagemCard(BuildContext context, Viagem viagem) {
+    final String? imageUrl = viagem.cidadeDestino?.fotoUrl;
 
-Widget _buildViagemCard(BuildContext context, Viagem viagem) {
-  final String? imageUrl = viagem.cidadeDestino?.fotoUrl;
-
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ItinerarioScreen(viagem: viagem),
-        ),
-      );
-    },
-    child: Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 2,
-          )
-        ],
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            flex: 3,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(30),
-              ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (imageUrl != null && imageUrl.isNotEmpty)
-                    Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey.shade300,
-                          child: const Icon(
-                            Icons.image_not_supported,
-                            size: 100,
-                            color: Colors.white,
-                          ),
-                        );
-                      },
-                    )
-                  else
-                    Container(
-                      color: Colors.grey.shade300,
-                      child: const Icon(
-                        Icons.image,
-                        size: 100,
-                        color: Colors.white,
-                      ),
-                    ),
-
-                  Positioned(
-                    top: 20,
-                    right: 20,
-                    child: Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.white,
-                          child: Icon(
-                            Icons.person,
-                            size: 20,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFEEA243),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.download,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-        return GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ItinerarioScreen(viagem: viagem)),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ItinerarioScreen(viagem: viagem),
           ),
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: imageUrl != null
-                        ? Image.network(imageUrl, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
-                        : Container(color: Colors.grey[300], child: const Icon(Icons.image, size: 50)),
-                  ),
-                ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        child: Stack(
+          alignment: Alignment.topCenter,
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  )
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: imageUrl != null && imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey.shade300,
+                          child: const Icon(Icons.image, size: 100, color: Colors.white),
+                        ),
+                      )
+                    : Container(
+                        color: Colors.grey.shade300,
+                        child: const Icon(Icons.image, size: 100, color: Colors.white),
+                      ),
+              ),
+            ),
 
-                Positioned(
-                  top: 15,
-                  right: 15,
-                  child: Row(
+            Positioned(
+              top: 20,
+              right: 20,
+              child: Row(
+                children: [
+                  Stack(
                     children: [
                       const CircleAvatar(
                         radius: 16,
                         backgroundColor: Colors.white,
-                        child: Icon(Icons.add, size: 18, color: Color(0xFFEEA243)),
+                        backgroundImage: NetworkImage('https://public-cdn-s3-us-west-2.oss-us-east-1.aliyuncs.com/talkie-user-img/93903448822076/200045860827213.jpeg?x-oss-process=image/resize,w_1024/format,webp'),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(color: Color(0xFFEEA243), shape: BoxShape.circle),
-                        child: const Icon(Icons.download, color: Colors.white, size: 18),
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          padding: const EdgeInsets.all(1),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.add_circle, size: 14, color: Color(0xFFEEA243)),
+                        ),
                       ),
                     ],
                   ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEEA243),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.download, color: Colors.white, size: 20),
+                  ),
+                ],
+              ),
+            ),
+
+            Positioned(
+              bottom: -25, // "Vazado"
+              child: Container(
+                width: 225,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEEA243),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
                 ),
-
-
-                Positioned(
-                  bottom: -25,
-                  child: Container(
-                    width: 220,
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEEA243),
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          viagem.destino.split(',')[0],
-                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.calendar_today, color: Colors.white, size: 10),
-                            const SizedBox(width: 5),
-                            Text(
-                              '${DateFormat('dd/MM/yyyy').format(viagem.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagem.dataFim)}',
-                              style: const TextStyle(color: Colors.white, fontSize: 10),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: 12,
-                horizontal: 20,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEEA243),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    viagem.destino.split(',')[0],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.calendar_today,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      viagem.destino.split(',')[0],
+                      style: const TextStyle(
                         color: Colors.white,
-                        size: 12,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${DateFormat('dd/MM/yyyy').format(viagem.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagem.dataFim)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.calendar_today, color: Colors.white, size: 12),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${DateFormat('dd/MM/yyyy').format(viagem.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagem.dataFim)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(
@@ -346,9 +296,10 @@ Widget _buildViagemCard(BuildContext context, Viagem viagem) {
             const SizedBox(height: 24),
             Image.asset(
               'assets/images/janela_aviao.png',
-              width: 250,
+              width: 200,
               fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => const Icon(Icons.airplanemode_active, size: 150, color: Color(0xFFEEA243)),
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.airplanemode_active, size: 150, color: Color(0xFFEEA243)),
             ),
             const SizedBox(height: 40),
             _buildCustomButton(
@@ -371,7 +322,8 @@ Widget _buildViagemCard(BuildContext context, Viagem viagem) {
     );
   }
 
-  Widget _buildCustomButton({required BuildContext context, required String label, required VoidCallback onPressed}) {
+  Widget _buildCustomButton(
+      {required BuildContext context, required String label, required VoidCallback onPressed}) {
     return SizedBox(
       width: double.infinity,
       height: 55,
@@ -385,28 +337,6 @@ Widget _buildViagemCard(BuildContext context, Viagem viagem) {
           label,
           style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
-      ),
-    );
-  }
-}
-
-class _BottomNavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback? onTap;
-  const _BottomNavItem({required this.icon, required this.label, this.isSelected = false, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: isSelected ? Colors.white : Colors.white70, size: 28),
-          Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontSize: 10)),
-        ],
       ),
     );
   }
