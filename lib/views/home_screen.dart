@@ -30,41 +30,49 @@ class HomeScreen extends StatelessWidget {
             return _buildEmptyState(context);
           }
 
-          return Stack(
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.65,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.65,
                   child: PageView.builder(
+                    clipBehavior: Clip.none,
                     itemCount: viewModel.viagens.length,
-                    controller: PageController(viewportFraction: 0.8),
+                    controller: PageController(viewportFraction: 0.85),
                     itemBuilder: (context, index) {
                       final viagem = viewModel.viagens[index];
                       return _buildViagemCard(context, viagem);
                     },
                   ),
                 ),
-              ),
-              Positioned(
-                right: 30,
-                bottom: 100,
-                child: FloatingActionButton(
-                  backgroundColor: const Color(0xFFEEA243),
-                  shape: const CircleBorder(),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CriarViagemScreen()),
-                    );
-                  },
-                  child: const Icon(Icons.add, color: Colors.white, size: 30),
+                const SizedBox(height: 50),
+
+                Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CriarViagemScreen())),
+                      child: Container(
+                        width: 65,
+                        height: 65,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEEA243),
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))],
+                        ),
+                        child: const Icon(Icons.add, color: Colors.white, size: 40),
+                      ),
+                    ),
+                  ),
                 ),
-              )
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           );
         },
       ),
+
       bottomNavigationBar: SafeArea(
         child: Container(    height: 70,
             decoration: const BoxDecoration(
