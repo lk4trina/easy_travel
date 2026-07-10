@@ -30,50 +30,58 @@ class HomeScreen extends StatelessWidget {
             return _buildEmptyState(context);
           }
 
-          return Stack(
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.65, // Aumentado para acomodar o texto abaixo
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.65,
                   child: PageView.builder(
+                    clipBehavior: Clip.none,
                     itemCount: viewModel.viagens.length,
-                    controller: PageController(viewportFraction: 0.8),
+                    controller: PageController(viewportFraction: 0.85),
                     itemBuilder: (context, index) {
                       final viagem = viewModel.viagens[index];
                       return _buildViagemCard(context, viagem);
                     },
                   ),
                 ),
-              ),
-              Positioned(
-                right: 30,
-                bottom: 100,
-                child: FloatingActionButton(
-                  backgroundColor: const Color(0xFFEEA243),
-                  shape: const CircleBorder(),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CriarViagemScreen()),
-                    );
-                  },
-                  child: const Icon(Icons.add, color: Colors.white, size: 30),
+                const SizedBox(height: 50),
+
+                Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CriarViagemScreen())),
+                      child: Container(
+                        width: 65,
+                        height: 65,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEEA243),
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))],
+                        ),
+                        child: const Icon(Icons.add, color: Colors.white, size: 40),
+                      ),
+                    ),
+                  ),
                 ),
-              )
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           );
         },
       ),
-      bottomNavigationBar: Container(
-        height: 70,
-        decoration: const BoxDecoration(
-          color: Color(0xFFEEA243),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
-          ),
-        ),
+
+      bottomNavigationBar: SafeArea(
+        child: Container(    height: 70,
+            decoration: const BoxDecoration(
+              color: Color(0xFFEEA243),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25),
+              ),
+            ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -90,6 +98,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -181,6 +190,81 @@ Widget _buildViagemCard(BuildContext context, Viagem viagem) {
                             color: Colors.white,
                             size: 20,
                           ),
+        return GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ItinerarioScreen(viagem: viagem)),
+          ),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: imageUrl != null
+                        ? Image.network(imageUrl, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
+                        : Container(color: Colors.grey[300], child: const Icon(Icons.image, size: 50)),
+                  ),
+                ),
+
+                Positioned(
+                  top: 15,
+                  right: 15,
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.add, size: 18, color: Color(0xFFEEA243)),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(color: Color(0xFFEEA243), shape: BoxShape.circle),
+                        child: const Icon(Icons.download, color: Colors.white, size: 18),
+                      ),
+                    ],
+                  ),
+                ),
+
+
+                Positioned(
+                  bottom: -25,
+                  child: Container(
+                    width: 220,
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEA243),
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          viagem.destino.split(',')[0],
+                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.calendar_today, color: Colors.white, size: 10),
+                            const SizedBox(width: 5),
+                            Text(
+                              '${DateFormat('dd/MM/yyyy').format(viagem.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagem.dataFim)}',
+                              style: const TextStyle(color: Colors.white, fontSize: 10),
+                            ),
+                          ],
                         ),
                       ],
                     ),
