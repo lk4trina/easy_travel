@@ -17,49 +17,79 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+
+    return await openDatabase(
+      path,
+      version: 2,
+      onCreate: _createDB,
+      onUpgrade: _upgradeDB,
+    );
   }
 
-  Future _createDB(Database db, int version) async {
+  Future<void> _createDB(Database db, int version) async {
     const idType = 'TEXT PRIMARY KEY';
     const textType = 'TEXT NOT NULL';
     const integerType = 'INTEGER NOT NULL';
 
     await db.execute('''
-CREATE TABLE viagens (
-  id $idType,
-  destino $textType,
-  pontoPartida TEXT,
-  dataInicio $textType,
-  dataFim $textType,
-  quantidadeViajantes $integerType,
-  despesas TEXT,
-  atracoes TEXT,
-  acomodacoes TEXT,
-  transportes TEXT,
-  checkList TEXT
-)
-''');
+      CREATE TABLE viagens (
+        id $idType,
+        destino $textType,
+        pontoPartida TEXT,
+        dataInicio $textType,
+        dataFim $textType,
+        quantidadeViajantes $integerType,
+        despesas TEXT,
+        atracoes TEXT,
+        acomodacoes TEXT,
+        transportes TEXT,
+        checkList TEXT,
+        cidadeDestino TEXT
+      )
+    ''');
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE viagens ADD COLUMN cidadeDestino TEXT');
+    }
   }
 
   Future<void> inserirViagem(Viagem viagem) async {
     final db = await instance.database;
-    await db.insert('viagens', viagem.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+
+    await db.insert(
+      'viagens',
+      viagem.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<List<Viagem>> lerTodasViagens() async {
     final db = await instance.database;
     final result = await db.query('viagens');
+
     return result.map((json) => Viagem.fromJson(json)).toList();
   }
 
   Future<void> atualizarViagem(Viagem viagem) async {
     final db = await instance.database;
-    await db.update('viagens', viagem.toJson(), where: 'id = ?', whereArgs: [viagem.id]);
+
+    await db.update(
+      'viagens',
+      viagem.toJson(),
+      where: 'id = ?',
+      whereArgs: [viagem.id],
+    );
   }
 
   Future<void> excluirViagem(String id) async {
     final db = await instance.database;
-    await db.delete('viagens', where: 'id = ?', whereArgs: [id]);
+
+    await db.delete(
+      'viagens',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }

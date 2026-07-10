@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/viagem.dart';
 import '../services/database_helper.dart';
+import '../models/cidade_destino.dart';
 
 class ViagemViewModel extends ChangeNotifier {
   List<Viagem> _viagens = [];
@@ -20,31 +21,33 @@ class ViagemViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> adicionarViagem({
-    required String destino,
-    required String? pontoPartida,
-    required DateTime dataInicio,
-    required DateTime dataFim,
-    required int quantidadeViajantes,
-  }) async {
-    final novaViagem = Viagem(
-      id: _uuid.v4(),
-      destino: destino,
-      pontoPartida: pontoPartida,
-      dataInicio: dataInicio,
-      dataFim: dataFim,
-      quantidadeViajantes: quantidadeViajantes,
-      despesas: [],
-      atracoes: [],
-      acomodacoes: [],
-      transportes: [],
-      checkList: [],
-    );
+Future<void> adicionarViagem({
+  required String destino,
+  String? pontoPartida,
+  required DateTime dataInicio,
+  required DateTime dataFim,
+  required int quantidadeViajantes,
+  CidadeDestino? cidadeDestino,
+}) async {
+  final novaViagem = Viagem(
+    id: _uuid.v4(),
+    destino: destino,
+    pontoPartida: pontoPartida,
+    dataInicio: dataInicio,
+    dataFim: dataFim,
+    quantidadeViajantes: quantidadeViajantes,
+    cidadeDestino: cidadeDestino,
+    despesas: [],
+    atracoes: [],
+    acomodacoes: [],
+    transportes: [],
+    checkList: [],
+  );
 
-    _viagens.add(novaViagem);
-    await DatabaseHelper.instance.inserirViagem(novaViagem);
-    notifyListeners();
-  }
+  await DatabaseHelper.instance.inserirViagem(novaViagem);
+
+  await _carregarDados();
+}
 
   Future<void> atualizarViagem(Viagem viagem) async {
     final index = _viagens.indexWhere((v) => v.id == viagem.id);
