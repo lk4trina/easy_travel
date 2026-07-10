@@ -123,24 +123,24 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                 leading: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: CircleAvatar(
-                    backgroundColor: Colors.white,
+                    backgroundColor: Colors.white.withOpacity(0.9),
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Color(0xFFEEA243)),
+                      icon: const Icon(Icons.chevron_left, color: Color(0xFFEEA243)),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
                 ),
                 actions: [
                   CircleAvatar(
-                    backgroundColor: Colors.white,
+                    backgroundColor: Colors.white.withOpacity(0.9),
                     child: IconButton(
-                      icon: const Icon(Icons.person_add, color: Color(0xFFEEA243)),
+                      icon: const Icon(Icons.add, color: Color(0xFFEEA243)),
                       onPressed: () {},
                     ),
                   ),
                   const SizedBox(width: 8),
                   CircleAvatar(
-                    backgroundColor: Colors.white,
+                    backgroundColor: Colors.white.withOpacity(0.9),
                     child: IconButton(
                       icon: const Icon(Icons.settings, color: Color(0xFFEEA243)),
                       onPressed: () => _mostrarMenuConfiguracoes(context),
@@ -180,18 +180,24 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                           ),
                           const SizedBox(height: 30),
                           _buildSectionHeader('Itinerário'),
-                          const SizedBox(height: 10),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: SizedBox(
-                              height: 200,
-                              child: GoogleMap(
-                                initialCameraPosition: const CameraPosition(
-                                  target: LatLng(-27.5953778, -48.5480499),
-                                  zoom: 12,
+                          const SizedBox(height: 15),
+                          Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
+                          ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: SizedBox(
+                                height: 180,
+                                child: GoogleMap(
+                                  initialCameraPosition: const CameraPosition(
+                                    target: LatLng(-27.5953778, -48.5480499),
+                                    zoom: 12,
+                                  ),
+                                  myLocationButtonEnabled: false,
+                                  zoomControlsEnabled: false,
                                 ),
-                                myLocationButtonEnabled: false,
-                                zoomControlsEnabled: false,
                               ),
                             ),
                           ),
@@ -242,16 +248,16 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
                       ),
                     ),
                     Positioned(
-                      top: -60,
+                      top: -45,
                       child: Container(
-                        width: MediaQuery.of(context).size.width * 0.85,
-                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                        width: MediaQuery.of(context).size.width * 0.75,
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                         decoration: BoxDecoration(
                           color: const Color(0xFFEEA243),
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black26,
                               blurRadius: 10,
                               offset: const Offset(0, 5),
                             )
@@ -292,15 +298,15 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
           );
         },
       ),
-      bottomNavigationBar: Container(
-        height: 70,
-        decoration: const BoxDecoration(
-          color: Color(0xFFEEA243),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
+      bottomNavigationBar: SafeArea(
+        child: Container( height: 70,
+          decoration: const BoxDecoration(
+            color: Color(0xFFEEA243),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(25),
+              topRight: Radius.circular(25),
+            ),
           ),
-        ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -311,8 +317,9 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
             Icon(Icons.person_outline, color: Colors.white, size: 28),
           ],
         ),
+        ),
       ),
-    );
+      );
   }
 
   void _mostrarDialogoAcomodacao(BuildContext context, String viagemId) {
@@ -399,16 +406,22 @@ class _ItinerarioScreenState extends State<ItinerarioScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFEEA243),
-          borderRadius: BorderRadius.circular(10),
+          color: const Color(0xFFEEA243).withOpacity(0.8),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
+          ],
         ),
         child: Row(
           children: [
             Icon(icon, color: Colors.white, size: 18),
-            const SizedBox(width: 4),
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+            const SizedBox(width: 6),
+            Text(
+                label,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)
+            ),
           ],
         ),
       ),

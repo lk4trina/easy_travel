@@ -33,7 +33,7 @@ class HomeScreen extends StatelessWidget {
           return Stack(
             children: [
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.65, // Aumentado para acomodar o texto abaixo
+                height: MediaQuery.of(context).size.height * 0.65,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: PageView.builder(
@@ -65,15 +65,15 @@ class HomeScreen extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: Container(
-        height: 70,
-        decoration: const BoxDecoration(
-          color: Color(0xFFEEA243),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
-          ),
-        ),
+      bottomNavigationBar: SafeArea(
+        child: Container(    height: 70,
+            decoration: const BoxDecoration(
+              color: Color(0xFFEEA243),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25),
+              ),
+            ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -91,6 +91,7 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -104,94 +105,78 @@ class HomeScreen extends StatelessWidget {
         }
 
         return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ItinerarioScreen(viagem: viagem)),
-            );
-          },
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ItinerarioScreen(viagem: viagem)),
+          ),
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                )
-              ],
-            ),
-            child: Column(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              clipBehavior: Clip.none,
               children: [
-                Expanded(
-                  flex: 3,
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)
+                    ],
+                  ),
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        imageUrl != null
-                            ? Image.network(imageUrl, fit: BoxFit.cover)
-                            : Container(
-                          color: Colors.grey.shade300,
-                          child: const Icon(Icons.image, size: 100, color: Colors.white),
-                        ),
-                        Positioned(
-                          top: 20,
-                          right: 20,
-                          child: Row(
-                            children: [
-                              const CircleAvatar(
-                                radius: 18,
-                                backgroundColor: Colors.white,
-                                child: Icon(Icons.person, size: 20, color: Colors.grey),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFEEA243),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.download, color: Colors.white, size: 20),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                    borderRadius: BorderRadius.circular(30),
+                    child: imageUrl != null
+                        ? Image.network(imageUrl, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
+                        : Container(color: Colors.grey[300], child: const Icon(Icons.image, size: 50)),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
+
+                Positioned(
+                  top: 15,
+                  right: 15,
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.add, size: 18, color: Color(0xFFEEA243)),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(color: Color(0xFFEEA243), shape: BoxShape.circle),
+                        child: const Icon(Icons.download, color: Colors.white, size: 18),
+                      ),
+                    ],
+                  ),
+                ),
+
+
+                Positioned(
+                  bottom: -25,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    width: 220,
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                     decoration: BoxDecoration(
                       color: const Color(0xFFEEA243),
                       borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))
+                      ],
                     ),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           viagem.destino.split(',')[0],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 4),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.calendar_today, color: Colors.white, size: 12),
-                            const SizedBox(width: 4),
+                            const Icon(Icons.calendar_today, color: Colors.white, size: 10),
+                            const SizedBox(width: 5),
                             Text(
                               '${DateFormat('dd/MM/yyyy').format(viagem.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(viagem.dataFim)}',
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                              style: const TextStyle(color: Colors.white, fontSize: 10),
                             ),
                           ],
                         ),
